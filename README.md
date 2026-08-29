@@ -16,7 +16,7 @@ Aplicação full-stack para localizar estacionamentos, reservar uma vaga e apres
 - API documentada automaticamente em `/docs`.
 - Health check da API e do banco em `/api/health`.
 - Testes automatizados e pipeline de CI.
-- Infraestrutura como código para site, API e PostgreSQL gerenciado no Render.
+- Infraestrutura como código para frontend e API no Render, conectados ao PostgreSQL gerenciado no Neon.
 
 ## Arquitetura
 
@@ -25,9 +25,9 @@ React + Vite (frontend)
         │ HTTPS/JSON
         ▼
 FastAPI + SQLAlchemy (API)
-        │ conexão privada
+        │ TLS/SQL
         ▼
-PostgreSQL gerenciado (Render)
+PostgreSQL gerenciado (Neon, região São Paulo)
 ```
 
 O SQLite é usado apenas como fallback rápido no desenvolvimento. No deploy, `DATABASE_URL` é injetada pelo PostgreSQL gerenciado e normalizada para o driver `psycopg`.
@@ -83,24 +83,24 @@ Validação realizada nesta entrega:
 
 ## Banco de dados na nuvem
 
-O arquivo `render.yaml` descreve três recursos interligados:
+O arquivo `render.yaml` descreve dois recursos interligados:
 
 1. `parky-fiap-diogo-web`: site estático React.
 2. `parky-fiap-diogo-api`: API FastAPI em container Docker.
-3. `parky-fiap-diogo-db`: PostgreSQL gerenciado, acessível pela rede privada do Render.
 
-O banco não fica exposto à internet (`ipAllowList: []`). A API cria o esquema e os dados iniciais automaticamente ao iniciar. O script equivalente também está em `database/schema.sql` para auditoria.
+O PostgreSQL é hospedado no Neon e informado à API pela variável secreta `DATABASE_URL`, com TLS obrigatório. A API cria o esquema e os dados iniciais automaticamente ao iniciar. O script equivalente também está em `database/schema.sql` para auditoria.
 
 ### Publicar no Render
 
-1. Crie um repositório Git apenas com o conteúdo desta pasta `parky` e envie ao GitHub ou GitLab.
-2. No painel do Render, selecione **New → Blueprint**.
-3. Conecte o repositório. O Render detectará o `render.yaml` na raiz.
-4. Revise os três recursos e aplique o Blueprint.
-5. Aguarde o health check da API ficar verde e abra a URL do frontend.
-6. Se algum nome já estiver em uso, altere os nomes no YAML e também as duas URLs em `FRONTEND_ORIGINS` e `VITE_API_URL` antes de aplicar.
+1. Crie no Neon um projeto PostgreSQL, preferencialmente na região de São Paulo, e copie a string de conexão direta com SSL.
+2. Envie este projeto ao GitHub ou GitLab.
+3. No painel do Render, selecione **New → Blueprint** e conecte o repositório.
+4. Informe a string do Neon no campo secreto `DATABASE_URL`, sem versioná-la.
+5. Revise os dois recursos e aplique o Blueprint.
+6. Aguarde o health check da API ficar verde e abra a URL do frontend.
+7. Se algum nome já estiver em uso, altere os nomes no YAML e também as URLs em `FRONTEND_ORIGINS` e `VITE_API_URL` antes de aplicar.
 
-O plano gratuito serve para demonstração acadêmica, mas o PostgreSQL gratuito do Render expira após 30 dias e não possui backup. Para manter o link ativo durante toda a correção, publique próximo à data de entrega ou mude o banco para um plano pago. Consulte a [documentação de Blueprints](https://render.com/docs/infrastructure-as-code) e as [limitações do plano gratuito](https://render.com/docs/free).
+Os serviços gratuitos são adequados para demonstração acadêmica, respeitados os limites atuais de cada provedor. A API gratuita do Render pode hibernar após inatividade e levar alguns segundos para responder à primeira requisição. O banco gratuito do Neon não possui a expiração de 30 dias do antigo PostgreSQL gratuito do Render, mas continua sujeito às cotas publicadas pelo provedor. Consulte a [documentação de Blueprints](https://render.com/docs/infrastructure-as-code), as [limitações do Render](https://render.com/docs/free) e a [documentação do Neon](https://neon.com/docs).
 
 > A instância remota só pode ser criada por uma pessoa autenticada na conta do provedor. O código e a infraestrutura estão prontos; aplicar o Blueprint é a etapa que efetivamente cria os recursos na conta.
 
@@ -144,4 +144,3 @@ parky/
 ## Observação sobre o código inicial
 
 A análise detalhada do trecho sugerido pelo Gemini está em `VALIDACAO_CODIGO_GEMINI.md`. Ele representava um bom esboço conceitual, mas não estava pronto para produção: aceitava preço vindo do cliente, usava CORS aberto e credenciais falsas como padrão, não tratava indisponibilidade, não validava os dados e não provisionava infraestrutura.
-

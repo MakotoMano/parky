@@ -22,9 +22,8 @@ O código original apresenta a ideia correta — React chama uma API FastAPI, qu
 9. O script SQL isolado não criava a tabela automaticamente. A API cria o esquema no primeiro start e semeia os estacionamentos.
 10. `DECIMAL` era convertido para `float`; valores monetários agora permanecem como `Decimal`/`NUMERIC`.
 11. A aplicação não tratava concorrência. O estacionamento é bloqueado durante a verificação de capacidade no PostgreSQL.
-12. Não havia configuração de deploy. O `render.yaml` provisiona API, site e PostgreSQL gerenciado como uma única infraestrutura.
+12. Não havia configuração de deploy. O `render.yaml` provisiona API e site no Render e recebe de forma segura a conexão do PostgreSQL gerenciado no Neon.
 
 ## Conclusão
 
 O código do Gemini é um esboço didático válido, mas insuficiente para afirmar que o MVP está funcional e seguro. A versão deste repositório implementa o fluxo completo, testes automatizados e infraestrutura reproduzível.
-
