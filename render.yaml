@@ -1,4 +1,4 @@
-# Infraestrutura como código: API + frontend + PostgreSQL gerenciado no Render.
+# Infraestrutura como código: API e frontend no Render + PostgreSQL no Neon.
 services:
   - type: web
     name: parky-fiap-diogo-api
@@ -9,9 +9,7 @@ services:
     healthCheckPath: /api/health
     envVars:
       - key: DATABASE_URL
-        fromDatabase:
-          name: parky-fiap-diogo-db
-          property: connectionString
+        sync: false
       - key: FRONTEND_ORIGINS
         value: https://parky-fiap-diogo-web.onrender.com
       - key: ENVIRONMENT
@@ -35,11 +33,3 @@ services:
       - path: /*
         name: Referrer-Policy
         value: strict-origin-when-cross-origin
-
-databases:
-  - name: parky-fiap-diogo-db
-    plan: free
-    databaseName: parky
-    user: parky
-    postgresMajorVersion: "17"
-    ipAllowList: []
