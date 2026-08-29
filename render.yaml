@@ -1,0 +1,45 @@
+# Infraestrutura como código: API + frontend + PostgreSQL gerenciado no Render.
+services:
+  - type: web
+    name: parky-fiap-diogo-api
+    runtime: docker
+    plan: free
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: parky-fiap-diogo-db
+          property: connectionString
+      - key: FRONTEND_ORIGINS
+        value: https://parky-fiap-diogo-web.onrender.com
+      - key: ENVIRONMENT
+        value: production
+      - key: TIMEZONE
+        value: America/Sao_Paulo
+
+  - type: web
+    name: parky-fiap-diogo-web
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://parky-fiap-diogo-api.onrender.com
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+
+databases:
+  - name: parky-fiap-diogo-db
+    plan: free
+    databaseName: parky
+    user: parky
+    postgresMajorVersion: "17"
+    ipAllowList: []

@@ -1,0 +1,32 @@
+services:
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: parky
+      POSTGRES_USER: parky
+      POSTGRES_PASSWORD: parky_local
+    ports:
+      - "5432:5432"
+    volumes:
+      - parky_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U parky -d parky"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://parky:parky_local@database:5432/parky
+      FRONTEND_ORIGINS: http://localhost:5173
+      ENVIRONMENT: development
+    ports:
+      - "8000:8000"
+    depends_on:
+      database:
+        condition: service_healthy
+
+volumes:
+  parky_postgres:
+
