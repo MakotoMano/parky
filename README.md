@@ -2,6 +2,15 @@
 
 Aplicação full-stack para localizar estacionamentos, reservar uma vaga e apresentar um QR Code na entrada. O projeto contém frontend React/TypeScript, API FastAPI/Python e persistência PostgreSQL pronta para nuvem.
 
+## Aplicação publicada
+
+- Frontend: https://parky-fiap-diogo-web.onrender.com
+- API: https://parky-fiap-diogo-api.onrender.com
+- Saúde da API e do banco: https://parky-fiap-diogo-api.onrender.com/api/health
+- Documentação interativa (Swagger): https://parky-fiap-diogo-api.onrender.com/docs
+
+O frontend e a API estão hospedados no Render, com persistência de dados em PostgreSQL no Neon. Não é necessário acesso aos painéis dos provedores para testar a aplicação. Em períodos de inatividade, a primeira resposta da API gratuita pode levar alguns segundos.
+
 ## Funcionalidades entregues
 
 - Landing page responsiva e interface de alta fidelidade.
